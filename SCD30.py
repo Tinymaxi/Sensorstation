@@ -7,7 +7,6 @@ import datetime
 import board
 from adafruit_bme280 import basic as adafruit_bme280
 
-
 # influx configuration - edit these
 ifuser = "grafana"
 ifpass = "<passwordhere>"
@@ -16,9 +15,6 @@ ifhost = "127.0.0.1"
 ifport = 8086
 measurement_name = "SCD30Stats"
 
-#take a timestamp for this measurement
-time = datetime.datetime.utcnow()
-
 # Create sensor object, using the board's default I2C bus.
 i2c = board.I2C()  # uses board.SCL and board.SDA
 bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
@@ -26,16 +22,11 @@ bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
 # change this to match the location's pressure (hPa) at sea level
 bme280.sea_level_pressure = 1013.25
 
-while True:
-    bmepres = int(bme280.pressure)
-    bmealt = int(bme280.altitude)
-    print(bmepres)
-    print(bmealt)
-    t.sleep(2)
-    break
-
-
-
+# Read BME280 pressure and altitude to calibrate SCD30
+bmepres = int(bme280.pressure)
+bmealt = int(bme280.altitude)
+print(bmepres)
+print(bmealt)
 
 
 
@@ -61,13 +52,12 @@ while True:
             print(f"CO2: {m[0]:.2f}ppm, temp: {m[1]:.2f}'C, rh: {m[2]:.2f}%")
             CO2 = float(f'''{m[0]:.2f}''')
             temp = float(f'''{m[1]:.2f}''')
-            rh = float(f'''{m[2]:.2f}''')   
+            rh = float(f'''{m[2]:.2f}''')
 
-            # format the data as a single measurement for influx
             body = [
                 {
                     "measurement": measurement_name,
-                    "time": time,
+                    "time": datetime.datetime.utcnow(),
                     "fields": {
                         "CO2": CO2,
                         "temp": temp,
@@ -76,13 +66,7 @@ while True:
                 }
             ]
 
-            # connect to influx
-            ifclient = InfluxDBClient(ifhost,ifport,ifuser,ifpass,ifdb)
-            # write the measurement
+            ifclient = InfluxDBClient(ifhost, ifport, ifuser, ifpass, ifdb)
             ifclient.write_points(body)
-
-            
-            t.sleep(2)
             break
-        else:
-            t.sleep(0.2)
+    t.sleep(0.2)

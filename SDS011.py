@@ -29,13 +29,18 @@ ifhost           = "127.0.0.1"
 ifport           = 8086
 measurement_name = "SDS011Stats"
 
-# Initialise sensor: active report mode, continuous measurement
-ser.write(bytes(CMD_ACTIVE_MODE))
-time.sleep(1)
-ser.write(bytes(CMD_CONTINUOUS))
-time.sleep(1)
-
-sensor_running = False
+# Check switch state at boot
+if switch_one.is_pressed:
+    ser.write(bytes(CMD_ACTIVE_MODE))
+    time.sleep(1)
+    ser.write(bytes(CMD_CONTINUOUS))
+    time.sleep(1)
+    ser.write(bytes(CMD_WORK))
+    sensor_running = True
+else:
+    ser.write(bytes(CMD_SLEEP))
+    time.sleep(1)
+    sensor_running = False
 checksum_old = 0
 
 while True:
@@ -48,6 +53,10 @@ while True:
     # Switch 1 controls sensor on/off
     if switch_one.is_pressed:
         if not sensor_running:
+            ser.write(bytes(CMD_ACTIVE_MODE))
+            time.sleep(1)
+            ser.write(bytes(CMD_CONTINUOUS))
+            time.sleep(1)
             ser.write(bytes(CMD_WORK))
             sensor_running = True
     else:
