@@ -7,8 +7,12 @@ from gpiozero import Button
 
 # DIP switch GPIO pins
 SWITCH_1 = 27   # SDS011 particle sensor on/off
+SWITCH_2 = 17   # CO2 sensor calibration
 SWITCH_3 = 4    # WiFi on/off
 SWITCH_4 = 24   # System shutdown
+
+# Outdoor CO2 reference level (ppm)
+CO2_OUTDOOR_PPM = 420
 
 SDS011_SCRIPT = '/home/pi/Sensorstation/SDS011.py'
 SDS011_PORT = '/dev/ttyUSB0'
@@ -22,6 +26,7 @@ POLL_INTERVAL = 1             # seconds between DIP switch polls
 HEALTH_CHECK_INTERVAL = 30    # seconds between WiFi health checks
 
 switch_one = Button(SWITCH_1)
+switch_two = Button(SWITCH_2)
 switch_three = Button(SWITCH_3)
 switch_four = Button(SWITCH_4)
 
@@ -295,6 +300,17 @@ def wifi_health_check():
             print("WiFi: still not connected, will retry next cycle")
 
 
+def co2_calibrate():
+    """Force-calibrate the SCD30 CO2 sensor to outdoor level using I2C command 0x5204."""
+    try:
+        from scd30_i2c import SCD30
+        scd = SCD30()
+        scd._send_command(0x5204, num_response_words=0, arguments=[CO2_OUTDOOR_PPM])
+        print("CO2: calibrated to {} ppm".format(CO2_OUTDOOR_PPM))
+    except Exception as e:
+        print("CO2: calibration failed: {}".format(e))
+
+
 def shutdown():
     """Safely shut down the system."""
     print("Shutdown switch activated, powering off...")
@@ -320,6 +336,9 @@ else:
         wifi_disable()
 
 health_check_counter = 0
+co2_cal_was_on = switch_two.is_pressed
+if co2_cal_was_on:
+    print("CO2 cal: switch is ON at boot, ignoring until toggled off then on")
 shutdown_was_on = switch_four.is_pressed
 if shutdown_was_on:
     print("Shutdown: switch is ON at boot, ignoring until toggled off then on")
@@ -335,6 +354,14 @@ while True:
             sds011_start()
         else:
             sds011_stop()
+
+        # Switch 2: CO2 calibration (only on OFF→ON transition)
+        if switch_two.is_pressed:
+            if not co2_cal_was_on:
+                co2_calibrate()
+            co2_cal_was_on = True
+        else:
+            co2_cal_was_on = False
 
         # Switch 4: shutdown (only on OFF→ON transition)
         if switch_four.is_pressed:

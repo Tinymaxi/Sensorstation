@@ -20,15 +20,17 @@ measurement_name = "BME280Stats"
 i2c = board.I2C()  # uses board.SCL and board.SDA
 bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
 
-# Station altitude in meters
+# Station altitude in meters (Swiss standard, ±3m)
 ALTITUDE = 435.0
+# Calibration offset for sea-level pressure (sensor reads ~6 hPa low)
+PRESSURE_OFFSET = 6.0
 
 bmetemp = float("%0.1f" % bme280.temperature)
 bmerh = float("%0.1f" % bme280.relative_humidity)
 bmeraw = bme280.pressure
 
 # Convert station pressure to sea-level pressure using barometric formula
-bmepres = float("%0.1f" % (bmeraw / (1 - (0.0065 * ALTITUDE) / (bmetemp + 0.0065 * ALTITUDE + 273.15)) ** 5.257))
+bmepres = float("%0.1f" % (bmeraw / (1 - (0.0065 * ALTITUDE) / (bmetemp + 0.0065 * ALTITUDE + 273.15)) ** 5.257 + PRESSURE_OFFSET))
 bmealt = ALTITUDE
 
 body = [
