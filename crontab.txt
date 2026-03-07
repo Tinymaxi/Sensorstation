@@ -1,5 +1,9 @@
 # m h  dom mon dow   command
-@reboot python /home/pi/Sensorstation/SDS011.py &
+@reboot sleep 15 && sudo python -u /home/pi/Sensorstation/DipSwitch.py >> /home/pi/Sensorstation/dipswitch.log 2>&1 &
+@reboot python /home/pi/Sensorstation/ScreenControl.py &
 * * * * * /home/pi/Sensorstation/SCD30.py
 * * * * * /home/pi/Sensorstation/BME280.py
 * * * * * /home/pi/Sensorstation/TSL2591.py
+
+# Daily time sync at 5:00 AM
+0 5 * * * sudo /home/pi/Sensorstation/timesync.sh

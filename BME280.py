@@ -20,18 +20,16 @@ measurement_name = "BME280Stats"
 i2c = board.I2C()  # uses board.SCL and board.SDA
 bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
 
-# change this to match the location's pressure (hPa) at sea level
-bme280.sea_level_pressure = 1013.25
-
-print("\nTemperature: %0.1f C" % bme280.temperature)
-print("Humidity: %0.1f %%" % bme280.relative_humidity)
-print("Pressure: %0.1f hPa" % bme280.pressure)
-print("Altitude = %0.2f meters" % bme280.altitude)
+# Station altitude in meters
+ALTITUDE = 435.0
 
 bmetemp = float("%0.1f" % bme280.temperature)
 bmerh = float("%0.1f" % bme280.relative_humidity)
-bmepres = float("%0.1f" % bme280.pressure)
-bmealt = float("%0.2f" % bme280.altitude)
+bmeraw = bme280.pressure
+
+# Convert station pressure to sea-level pressure using barometric formula
+bmepres = float("%0.1f" % (bmeraw / (1 - (0.0065 * ALTITUDE) / (bmetemp + 0.0065 * ALTITUDE + 273.15)) ** 5.257))
+bmealt = ALTITUDE
 
 body = [
     {
