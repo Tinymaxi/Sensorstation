@@ -1,24 +1,38 @@
+/* Drag-to-scroll for touchscreen kiosk mode.
+   Uses capture phase to intercept mouse events before Grafana's
+   React components can consume them. */
 (function() {
-    var sv = document.querySelectorAll(".scrollbar-view");
-    var scrollEl = null;
-    for (var i = 0; i < sv.length; i++) {
-        if (sv[i].scrollHeight > 1000) { scrollEl = sv[i]; break; }
-    }
-    if (!scrollEl) return "no scroll element";
+    var poll = setInterval(function() {
+        var views = document.querySelectorAll(".scrollbar-view");
+        var scrollEl = null;
+        for (var i = 0; i < views.length; i++) {
+            if (views[i].scrollHeight > views[i].clientHeight + 100) {
+                scrollEl = views[i];
+                break;
+            }
+        }
+        if (!scrollEl) return;
+        clearInterval(poll);
 
-    var startY, startScroll, dragging = false;
-    scrollEl.addEventListener("mousedown", function(e) {
-        dragging = true;
-        startY = e.clientY;
-        startScroll = scrollEl.scrollTop;
-    });
-    document.addEventListener("mousemove", function(e) {
-        if (!dragging) return;
-        scrollEl.scrollTop = startScroll + (startY - e.clientY);
-        e.preventDefault();
-    });
-    document.addEventListener("mouseup", function() {
-        dragging = false;
-    });
-    return "OK scrollH=" + scrollEl.scrollHeight;
-})()
+        var startY = 0, startScroll = 0, dragging = false;
+
+        document.addEventListener("mousedown", function(e) {
+            dragging = true;
+            startY = e.clientY;
+            startScroll = scrollEl.scrollTop;
+            e.stopPropagation();
+            e.preventDefault();
+        }, true);
+
+        document.addEventListener("mousemove", function(e) {
+            if (!dragging) return;
+            scrollEl.scrollTop = startScroll + (startY - e.clientY);
+            e.stopPropagation();
+            e.preventDefault();
+        }, true);
+
+        document.addEventListener("mouseup", function() {
+            dragging = false;
+        }, true);
+    }, 500);
+})();

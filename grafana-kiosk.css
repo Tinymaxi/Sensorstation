@@ -1,0 +1,15 @@
+/* Kiosk touch display — disable interactive UI, keep scrolling */
+
+/* Disable panel title links and dropdowns */
+.panel-title-container { pointer-events: none !important; }
+.panel-menu-container { display: none !important; }
+.dropdown { display: none !important; }
+.panel-header { pointer-events: none !important; }
+
+/* Disable graph tooltips */
+.graph-tooltip, .nvtooltip { display: none !important; }
+.popper, .popper__arrow { display: none !important; }
+
+/* Disable legend clicks */
+.graph-legend-series { pointer-events: none !important; }
+.graph-legend-alias { pointer-events: none !important; }

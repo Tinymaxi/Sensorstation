@@ -8,7 +8,10 @@ from rpi_backlight import Backlight
 
 # Configuration
 PIR_PIN = 22
-LUX_THRESHOLD = 5       # screen stays off below this
+LUX_THRESHOLD = 3       # screen stays off below this
+LUX_BRIGHT_THRESHOLD = 50  # above this: full brightness
+BRIGHTNESS_DIM = 40     # brightness % in dim light
+BRIGHTNESS_BRIGHT = 100 # brightness % in bright light
 SCREEN_ON_SECONDS = 60   # how long screen stays on after motion
 
 # Setup
@@ -34,6 +37,10 @@ while True:
         if lux >= LUX_THRESHOLD:
             if not backlight.power:
                 backlight.power = True
+            if lux >= LUX_BRIGHT_THRESHOLD:
+                backlight.brightness = BRIGHTNESS_BRIGHT
+            else:
+                backlight.brightness = BRIGHTNESS_DIM
             screen_off_time = time.time() + SCREEN_ON_SECONDS
 
     # Turn off screen after timeout
