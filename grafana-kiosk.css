@@ -13,3 +13,6 @@
 /* Disable legend clicks */
 .graph-legend-series { pointer-events: none !important; }
 .graph-legend-alias { pointer-events: none !important; }
+
+/* Dashboard side padding */
+.css-50qyg5 { padding-left: 28px !important; padding-right: 28px !important; }
