@@ -7,9 +7,9 @@ everything to a local InfluxDB, and shows it on a Grafana dashboard on its own t
 Custom PCB, 3D-printed housing, and a row of DIP switches on the side so it can be handled
 without a keyboard.
 
-![Assembled enclosure](images/enclosure-assembled.jpg)
+![The station running](images/station-in-use.jpg)
 
-*Fusion 360 render of the assembled station — touch display, PIR dome and the hex-vented side panel.*
+*The finished station on the shelf, showing the last few hours of temperature, humidity and CO₂.*
 
 ---
 
@@ -62,9 +62,14 @@ Full pin assignment is in [`GPIO_PINOUT.md`](GPIO_PINOUT.md).
 
 ## Hardware
 
-![Exploded view](images/enclosure-exploded.png)
+<p align="center">
+  <img src="images/station-front.jpg" width="45%" alt="Front view">
+  <img src="images/enclosure-exploded.png" width="45%" alt="Exploded render">
+</p>
 
-*Exploded render — the Nova PM (SDS011) sensor sits in the base, the Pi and the custom HAT above it.*
+*Left: the printed housing, PIR dome and CO₂ sensor on the side panel.
+Right: the original Fusion 360 exploded view — the Nova PM (SDS011) sensor sits in the base,
+the Pi and the custom HAT above it.*
 
 ```
 hardware/
